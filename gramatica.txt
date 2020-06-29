@@ -1,0 +1,12 @@
+EXPR := int id = OPERATION | float id = OPERATION
+EXPR := print ( F )
+OPERATION := T Ep
+Ep := + T Ep 
+Ep := - T Ep
+Ep := lambda
+T := F Tp
+Tp := * F Tp
+Tp := / F Tp
+Tp := % F Tp  
+Tp := lambda
+F := id | value
