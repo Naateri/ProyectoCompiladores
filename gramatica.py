@@ -1,6 +1,9 @@
+from analizadorLexico import AnalizadorLexico
+from analizadorLexico import Token
 from produccion import Produccion
 from tablaSintactica import TablaSintactica
 from nodo import Nodo
+from error_log import Log
 
 def opera1(pivote, literales):
     # adicionar cada literal al nodo pivote
@@ -45,6 +48,8 @@ class Gramatica:
     noterminales = set()
     siguientes = None # siguientes de no terminales
     dolar = '$'
+
+    log = Log() # Log de errores y warnings
 
     def __init__(self):
         #terminales = ['+', '-', '*', '/', '(', ')', 'num', 'id', '$']
@@ -315,13 +320,36 @@ class Gramatica:
         return ret_str
 
     # Validar String
-    def validate_str(self, cadena):
-        queue = cadena.split()
+    def validate_str(self, cadena, linea=0):
+        lexico = AnalizadorLexico()
+
+        lexic_tokens = lexico.analizadorLexico(cadena)
+
+        queue = [token.valor_gramatica for token in lexic_tokens]
+
+        print(queue)
+
+        # Buscando errores analizador léxico
+        for value in queue:
+            if value == 'NoOp': # Error operador invalido
+                self.log.addError('E0', linea)
+            elif value == 'NoNum': # Error numero invalido
+                self.log.addError('E1', linea)
+
+        if (len(self.log.get_instance().errores) > 0 or
+            len(self.log.warnings) > 0):
+            print(self.log.get_instance())
+            self.log.get_instance().errores.clear()
+            self.log.get_instance().warnings.clear()
+            return False
+        
+        #queue = cadena.split()
+        queue = lexic_tokens
         stack = list()
 
         stack.append(self.dolar)
         stack.append(self.nodoInicial)
-        queue.append(self.dolar)
+        queue.append(Token(self.dolar, -1, '$', '$'))
 
         tabla_arbol = [['pila', 'entrada', 'operacion', 'adicionar']]
 
@@ -330,10 +358,11 @@ class Gramatica:
 
         while (len(stack) > 0 and len(queue) > 0):
             fila_tabla = list()
+            queue_vals = [token.valor_gramatica for token in queue]
             fila_tabla.append(self.tokenize_array(stack))
-            fila_tabla.append(self.tokenize_array(queue))
+            fila_tabla.append(self.tokenize_array(queue_vals))
             # Si queue.top es igual a stack.top()
-            if queue[0] == stack[-1]:
+            if queue[0].valor_gramatica == stack[-1]:
                 # pop a cada estructura
                 queue.pop(0)
                 stack.pop()
@@ -345,7 +374,7 @@ class Gramatica:
                 temp = stack.pop()
                 try:
                     # Buscar en la tabla
-                    valor_tabla = self.tablaSintactica.tabla[temp][queue[0]]
+                    valor_tabla = self.tablaSintactica.tabla[temp][queue[0].valor_gramatica]
                     tokens_vtabla = valor_tabla.split()
                     tokens_vtabla.reverse()
 
@@ -380,10 +409,6 @@ class Gramatica:
                     # Si no se encontró valor en la tabla
                     # Se halló un error de sintaxis
                     print("Error de sintaxis")
-                    for fila in tabla_arbol:
-                        for columna in fila:
-                            print(columna.ljust(20), end = ' ')
-                        print()
                     return False
             tabla_arbol.append(fila_tabla)
         
@@ -391,7 +416,7 @@ class Gramatica:
             for columna in fila:
                 print(columna.ljust(20), end = ' ')
             print()
-
+            
         return len(stack) == 0 and len(queue) == 0
 
     def cargar(self, texto):
