@@ -11,11 +11,11 @@ def main():
     #EXPR := print ( F )
     gramatica.cargar("""
 EXPR := D_TYPE id = OPERATION
-EXPR := id = OPERATION
 EXPR := print ( F )
 EXPR := if F REL_OP F begin
-EXPR := else
+EXPR := else begin
 EXPR := end
+EXPR := D_TYPE id LAMBDA D_TYPE id : OPERATION
 OPERATION := T Ep
 Ep := + T Ep 
 Ep := - T Ep
@@ -65,20 +65,33 @@ F := id | value
     texto = """int _prueba2 = 12 + 23%14 & Declaración tipo entero
 int prueba3 = _prueba2 + 1 & Declaración usando otra variable
 float hola = 2*3/5 & Declaración tipo flotante, multiplicación con división
-float prueba = 111@3 + 124a & Declaración tipo flotante con error"""
+if a <= 3 begin & Ejemplo if
+float hola = 3 & Contenido del if
+int result = a + 4 & Segunda linea if
+end & Fin del if"""
     cadenas = texto.split('\n')
     linea = 0
+    valid = True
     for cadena in cadenas:
         validate = gramatica.validate_str(cadena, linea)
         if not validate:
             print('Error de compilación')
+            valid = False
             break
         linea += 1
 
-    #gramatica.validate_str('float hola = 2+3 & Declaración tipo flotante, suma', 0)
-    #gramatica2.validate_str('if ( EXPR_IF ) EXPR')
+    if valid:
+        lexical_analyzer = gramatica.analizador_lexico
+        cur_balance = lexical_analyzer.get_balance()
+        if not lexical_analyzer.balanced_text(cur_balance):
+            gramatica.log.addError('E2', 0)
+            print(gramatica.log)
 
-    gramatica.validate_str('if a <= 3 begin')
+
+    #gramatica.validate_str('float hola = 2+3 & Declaración tipo flotante, suma', 0)
+
+    #gramatica.validate_str('float prueba = 111@3 + 124a & Declaración tipo flotante con error')
+    #gramatica.validate_str('if a <= 3 begin')
     
 
 if __name__ == '__main__':

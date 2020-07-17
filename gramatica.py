@@ -48,6 +48,7 @@ class Gramatica:
     noterminales = set()
     siguientes = None # siguientes de no terminales
     dolar = '$'
+    analizador_lexico = None
 
     log = Log().get_instance() # Log de errores y warnings
 
@@ -57,6 +58,7 @@ class Gramatica:
         self.nodoInicial = None
         self.tablaSintactica = None
         self.terminales.add('$') # Fin de cadena
+        self.analizador_lexico = AnalizadorLexico()
 
     # getIzquierdaFromDerecha:
     # encontrar generador de la izquierda a partir de toda
@@ -323,7 +325,7 @@ class Gramatica:
 
     # Validar String
     def validate_str(self, cadena, linea=0):
-        lexico = AnalizadorLexico()
+        lexico = self.analizador_lexico
 
         lexic_tokens = lexico.analizadorLexico(cadena)
 
@@ -339,7 +341,7 @@ class Gramatica:
                 self.log.addError('E1', linea)
 
         if (len(self.log.get_instance().errores) > 0 or
-            len(self.log.warnings) > 0):
+            len(self.log.get_instance().warnings) > 0):
             print(self.log.get_instance())
             self.log.get_instance().errores.clear()
             self.log.get_instance().warnings.clear()
@@ -419,7 +421,7 @@ class Gramatica:
             for columna in fila:
                 print(columna.ljust(30), end = ' ')
             print()
-            
+
         return len(stack) == 0 and len(queue) == 0
 
     def cargar(self, texto):

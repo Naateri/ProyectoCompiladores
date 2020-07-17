@@ -2,7 +2,8 @@ class DiccionarioError:
     codigos = dict()
 
     def __init__(self):
-        self.codigos = {'E0': 'InvalidOperator', 'E1': 'IncorrectNumber'}
+        self.codigos = {'E0': 'InvalidOperator', 'E1': 'IncorrectNumber', 
+        'E2': 'UnmatchedBeginAndEnd'}
 
 class Log:
     errores = list()
