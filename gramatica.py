@@ -49,7 +49,7 @@ class Gramatica:
     siguientes = None # siguientes de no terminales
     dolar = '$'
 
-    log = Log() # Log de errores y warnings
+    log = Log().get_instance() # Log de errores y warnings
 
     def __init__(self):
         #terminales = ['+', '-', '*', '/', '(', ')', 'num', 'id', '$']
@@ -272,6 +272,8 @@ class Gramatica:
     def finish_siguientes(self, noterminal):
         # siguiente es vacío, actualizamos
         # con los siguientes del generador
+        #print('finish_siguientes')
+        #print('noterminal', noterminal)
         gen_by = self.find_generator(noterminal)
         generated_by = list(gen_by)[0]
         # Reemplazando con los siguientes del generador
@@ -372,6 +374,7 @@ class Gramatica:
             else:
                 # pop a stack
                 temp = stack.pop()
+                #print('stack pop', temp)
                 try:
                     # Buscar en la tabla
                     valor_tabla = self.tablaSintactica.tabla[temp][queue[0].valor_gramatica]
@@ -414,7 +417,7 @@ class Gramatica:
         
         for fila in tabla_arbol:
             for columna in fila:
-                print(columna.ljust(20), end = ' ')
+                print(columna.ljust(30), end = ' ')
             print()
             
         return len(stack) == 0 and len(queue) == 0

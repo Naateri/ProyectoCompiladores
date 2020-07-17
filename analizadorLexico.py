@@ -22,6 +22,10 @@ class Token:
 class AnalizadorLexico:
     operators = ['+','-','*','/', '%', '=']
     datatypes = ['float', 'int']
+    reserved_if = ['if', 'else']
+    reserved_delim = ['begin', 'end']
+    relational_operators = ['==', '!=', '<=', '>=', '<', '>']
+    token_comentario = '&'
 
     def __init__(self):
         pass
@@ -72,11 +76,24 @@ class AnalizadorLexico:
             idx += 1
 
         if token in self.datatypes: # datatype
-            token_obj = Token(token, start_idx, 'D', token)
+            token_obj = Token(token, start_idx, 'D', 'D_TYPE')
+        elif token in self.reserved_if:
+            token_obj = Token(token, start_idx, 'I', token)
+        elif token in self.reserved_delim:
+            token_obj = Token(token, start_idx, 'S', token) # S = Scope
         else:
-
             token_obj = Token(token, start_idx, "V", 'id') #Creacion del token
         return token_obj,idx
+    
+    def reconoceComentario(self, linea, idx):
+        #start_idx = idx
+        token = ''
+        while idx < len(linea):
+            token += linea[idx]
+            idx += 1
+        print('Comentario:', token)
+        return token, idx
+
 
     def analizadorLexico(self, linea):
         tokens = list()
@@ -88,7 +105,7 @@ class AnalizadorLexico:
                 token,index = self.reconocePosibleNumero(linea, index)
                 tokens.append(token) #Guardar token
 
-            elif linea[index].isalpha(): #Es una palabra
+            elif linea[index].isalpha() or linea[index] == '_': #Es una palabra
                 token,index = self.reconoceVariable(linea, index)
                 tokens.append(token) #Guardar token
 
@@ -99,8 +116,26 @@ class AnalizadorLexico:
                 tokens.append(token_obj) #Guardar token
                 index += 1
 
+            elif index+2 <= len(linea) and linea[index:index+2] in self.relational_operators:
+                # Operador relacional (==, !=, <=, >=)
+                token = linea[index]
+                token_obj = Token(token, index, 'OR', 'REL_OP')
+                tokens.append(token_obj)
+                index += 2
+
+            elif linea[index] in self.relational_operators: # Operador relacional (<, >)
+                token = linea[index]
+                token_obj = Token(token, index, 'OR', 'REL_OP')
+                tokens.append(token_obj)
+                index += 1
+
             elif linea[index] == " ": #Espacio
                 index += 1 #Omitir
+            
+            elif linea[index] == self.token_comentario:
+                index += 1
+                token,index = self.reconoceComentario(linea, index)
+                index += 1
 
             else: # Posible operador
                 token,idx = self.reconocePosibleOperacion(linea, index)
