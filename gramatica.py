@@ -336,9 +336,11 @@ class Gramatica:
         # Buscando errores analizador léxico
         for value in queue:
             if value == 'NoOp': # Error operador invalido
-                self.log.addError('E0', linea)
+                self.log.addError('E0', linea, cadena)
             elif value == 'NoNum': # Error numero invalido
-                self.log.addError('E1', linea)
+                self.log.addError('E1', linea, cadena)
+            elif value == 'NoId': # Error variable no declarada
+                self.log.addError('E4', linea, cadena)
 
         if (len(self.log.get_instance().errores) > 0 or
             len(self.log.get_instance().warnings) > 0):
@@ -348,6 +350,10 @@ class Gramatica:
             return False
         
         #queue = cadena.split()
+        
+        #print (self.tokenize_array(queue))
+        #print ([prod.right for prod in self.producciones])
+
         queue = lexic_tokens
         stack = list()
 
@@ -365,6 +371,8 @@ class Gramatica:
             queue_vals = [token.valor_gramatica for token in queue]
             fila_tabla.append(self.tokenize_array(stack))
             fila_tabla.append(self.tokenize_array(queue_vals))
+            #print('queue', [q.valor_gramatica for q in queue])
+            #print('stack', stack )
             # Si queue.top es igual a stack.top()
             if queue[0].valor_gramatica == stack[-1]:
                 # pop a cada estructura

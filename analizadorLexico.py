@@ -31,6 +31,10 @@ class Symbol:
         self.value = value
         self.name = name
 
+    def __str__(self):
+        ret_str = 'Symbol, name = ' + self.name
+        return ret_str
+
 class SymbolTable:
     symbols = []
 
@@ -46,6 +50,12 @@ class SymbolTable:
                 return True
         return False
 
+    def __str__(self):
+        ret_str = ''
+        for symbol in self.symbols:
+            ret_str += str(symbol) + '\n'
+        return ret_str
+
 
 class AnalizadorLexico:
     operators = ['+','-','*','/', '%', '=']
@@ -55,6 +65,7 @@ class AnalizadorLexico:
     relational_operators = ['==', '!=', '<=', '>=', '<', '>']
     token_comentario = '&'
     lambda_func = 'LAMBDA'
+    call_func = 'CALL'
     symbol_table = None
     balance_beginend = ''
 
@@ -116,6 +127,10 @@ class AnalizadorLexico:
                 self.balance_beginend += 'b'
             else:
                 self.balance_beginend += 'e'
+        elif token == self.lambda_func:
+            token_obj = Token(token, start_idx, 'LAMBDA', token)
+        elif token == self.call_func:
+            token_obj = Token(token, start_idx, 'CALL', token)
         else:
             token_obj = Token(token, start_idx, "V", 'id') #Creacion del token
         return token_obj,idx
@@ -140,8 +155,47 @@ class AnalizadorLexico:
                 token,index = self.reconocePosibleNumero(linea, index)
                 tokens.append(token) #Guardar token
 
+                # Tabla de simbolos
+                if tokens[-2].palabra == '=':
+                    cur_sym = Symbol(token.tipo, token.palabra, tokens[-3].palabra)
+                    if not self.symbol_table.check_by_name(tokens[-3].palabra): # No existe
+                        self.symbol_table.add_symbol(cur_sym)
+
             elif linea[index].isalpha() or linea[index] == '_': #Es una palabra
                 token,index = self.reconoceVariable(linea, index)
+
+                # Si es una variable no declarada, reportarlo
+
+                tokens_symbol = [token.valor_gramatica for token in tokens]
+                tokens_palabra = [token.palabra for token in tokens]
+
+                if (token.valor_gramatica not in self.datatypes and 
+                    token.valor_gramatica not in self.reserved_if and 
+                    token.valor_gramatica not in self.reserved_delim
+                    and token.valor_gramatica != self.lambda_func
+                    and token.valor_gramatica != self.call_func):
+                    if 'LAMBDA' in tokens_symbol: # Funcion lambda
+                        #print('lambda', tokens_symbol)
+                        #print(tokens_palabra)
+                        if '=' not in tokens_symbol:
+                            cur_sym = Symbol('F', 0, token.palabra) # Simbolo de la funcion
+                            if not self.symbol_table.check_by_name(token.palabra): # No existe
+                                self.symbol_table.add_symbol(cur_sym) # Meter funcion
+                        else:
+                            if ':' in tokens_symbol: # usando id que o está en la tabla de simbolos
+                                # O es el parámetro
+                                if (token.palabra not in tokens_palabra # no es el parámetro
+                                    and not self.symbol_table.check_by_name(cur_sym)): # no fue definida antes
+                                    token.valor_gramatica = 'NoId'
+
+                        
+                    elif '=' in tokens_symbol or 'if' in tokens_symbol:
+                        # Buscar si ya fue declarada
+                        print(self.symbol_table)
+                        if not self.symbol_table.check_by_name(token.palabra):
+                            # No fue declarada pero esta siendo usada, reportarlo
+                            token.valor_gramatica = 'NoId'
+
                 tokens.append(token) #Guardar token
 
             elif linea[index] in self.operators: #Operadores
@@ -166,6 +220,12 @@ class AnalizadorLexico:
 
             elif linea[index] == " ": #Espacio
                 index += 1 #Omitir
+
+            elif linea[index] == ':': # Dos puntos de funcion lambda
+                token = linea[index]
+                token_obj = Token(token, index, ':', ':')
+                tokens.append(token_obj)
+                index += 1
             
             elif linea[index] == self.token_comentario:
                 index += 1

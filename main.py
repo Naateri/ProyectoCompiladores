@@ -15,7 +15,8 @@ EXPR := print ( F )
 EXPR := if F REL_OP F begin
 EXPR := else begin
 EXPR := end
-EXPR := D_TYPE id LAMBDA D_TYPE id : OPERATION
+EXPR := LAMBDA D_TYPE id = D_TYPE id : OPERATION
+EXPR := CALL D_TYPE id = F F
 OPERATION := T Ep
 Ep := + T Ep 
 Ep := - T Ep
@@ -46,31 +47,18 @@ F := id | value
     #gramatica.imprimirTabla()
     print(gramatica.tablaSintactica)
 
-    #gramatica2 = Gramatica()
-    #gramatica2.cargar("""
-#IF_STMT := if EXPR_IF EXPR OPT_ELSE
-#OPT_ELSE := lambda
-#OPT_ELSE := EXPR
-#""")
-
-#    primeros2 = gramatica2.getPrimeros()
- #   print('primeros2')
- #   print(primeros2)
- #   siguientes2 = gramatica2.getSiguientes()
- #   print('siguientes2')
- #   print(siguientes2)
-
- #   gramatica2.crearTabla()
-
-    texto = """int _prueba2 = 12 + 23%14 & Declaración tipo entero
+    texto = """LAMBDA int potencia2 = int num : num * num  & Declaración función
+CALL int prueba_ = potencia2 4 & Llamada a función
+int _prueba2 = 12 + 23%14 & Declaración tipo entero
 int prueba3 = _prueba2 + 1 & Declaración usando otra variable
 float hola = 2*3/5 & Declaración tipo flotante, multiplicación con división
-if a <= 3 begin & Ejemplo if
-float hola = 3 & Contenido del if
-int result = a + 4 & Segunda linea if
+int prueba1 = 5 & Declaración variable prueba1
+if prueba1 <= 3 begin & Ejemplo if
+int prueba4 = 3+ prueba1 & Contenido del if
+int result = prueba1 + prueba4 & Segunda linea if
 end & Fin del if"""
     cadenas = texto.split('\n')
-    linea = 0
+    linea = 1
     valid = True
     for cadena in cadenas:
         validate = gramatica.validate_str(cadena, linea)
@@ -84,7 +72,7 @@ end & Fin del if"""
         lexical_analyzer = gramatica.analizador_lexico
         cur_balance = lexical_analyzer.get_balance()
         if not lexical_analyzer.balanced_text(cur_balance):
-            gramatica.log.addError('E2', 0)
+            gramatica.log.addError('E2', 0, 'Revisar todo')
             print(gramatica.log)
 
 

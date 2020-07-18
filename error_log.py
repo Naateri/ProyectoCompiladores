@@ -3,7 +3,8 @@ class DiccionarioError:
 
     def __init__(self):
         self.codigos = {'E0': 'InvalidOperator', 'E1': 'IncorrectNumber', 
-        'E2': 'UnmatchedBeginAndEnd'}
+        'E2': 'UnmatchedBeginAndEnd', 'E3': 'NoMatchingIf',
+        'E4': 'UndeclaredVariableOrFunc'}
 
 class Log:
     errores = list()
@@ -28,8 +29,8 @@ class Log:
         return Log.__instance__
 
     # Adicionar error
-    def addError(self, codigo, errorParametro):
-        error_text = str(codigo) + " " + self.dict_error[codigo]
+    def addError(self, codigo, errorParametro, contenido):
+        error_text = str(codigo) + " " + self.dict_error[codigo] + " TEXTO: " + contenido
         self.errores.append( (error_text, errorParametro) )
 
     # Adicionar warning
