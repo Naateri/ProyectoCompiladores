@@ -1,4 +1,5 @@
 from gramatica import Gramatica
+import os
 
 def main():
 
@@ -11,12 +12,14 @@ def main():
     #EXPR := print ( F )
     gramatica.cargar("""
 EXPR := D_TYPE id = OPERATION
-EXPR := print ( F )
+EXPR := print F
+EXPR := INP D_TYPE id = input
 EXPR := if F REL_OP F begin
 EXPR := else begin
 EXPR := end
 EXPR := LAMBDA D_TYPE id = D_TYPE id : OPERATION
-EXPR := CALL D_TYPE id = F F
+EXPR := CALL D_TYPE id = id F
+EXPR := MAIN
 OPERATION := T Ep
 Ep := + T Ep 
 Ep := - T Ep
@@ -28,35 +31,43 @@ Tp := % F Tp
 Tp := lambda
 F := id | value
 """)
-    print(gramatica)
+    '''print(gramatica)
     
     print("no terminales", gramatica.noterminales)
-    print("terminales", gramatica.terminales, '\n')
+    print("terminales", gramatica.terminales, '\n')'''
 
     primeros = gramatica.getPrimeros()
-    print("primeros")
-    print(primeros)
-    print()
+    #print("primeros")
+    #print(primeros)
+    #print()
 
     siguientes = gramatica.getSiguientes()
-    print("siguientes")
-    print(siguientes)
-    print()
+    #print("siguientes")
+    #print(siguientes)
+    #print()
 
     gramatica.crearTabla()
     #gramatica.imprimirTabla()
-    print(gramatica.tablaSintactica)
+    #print(gramatica.tablaSintactica)'''
 
     texto = """LAMBDA int potencia2 = int num : num * num  & Declaración función
+MAIN
 CALL int prueba_ = potencia2 4 & Llamada a función
+print prueba_ & ejemplo de Output
 int _prueba2 = 12 + 23%14 & Declaración tipo entero
 int prueba3 = _prueba2 + 1 & Declaración usando otra variable
 float hola = 2*3/5 & Declaración tipo flotante, multiplicación con división
-int prueba1 = 5 & Declaración variable prueba1
+int prueba1 = 2 & Declaración variable prueba1
 if prueba1 <= 3 begin & Ejemplo if
 int prueba4 = 3+ prueba1 & Contenido del if
+INP int prueba5 = input & ejemplo de input
 int result = prueba1 + prueba4 & Segunda linea if
-end & Fin del if"""
+print result & Output en if
+end & Fin del if
+else begin & Ejemplo else
+int result = 4 & Cuerpo del else
+print result & Cuerpo del else
+end & Fin del else"""
     cadenas = texto.split('\n')
     linea = 1
     valid = True
@@ -74,6 +85,15 @@ end & Fin del if"""
         if not lexical_analyzer.balanced_text(cur_balance):
             gramatica.log.addError('E2', 0, 'Revisar todo')
             print(gramatica.log)
+        gramatica.translator.write_eof()
+
+        print('Program execution')
+        os.system('g++ result.cpp -o results')
+        os.system('./results')
+
+        print('Deleting files')
+        os.remove('result.cpp')
+        os.remove('results')
 
 
     #gramatica.validate_str('float hola = 2+3 & Declaración tipo flotante, suma', 0)

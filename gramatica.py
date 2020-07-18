@@ -4,6 +4,7 @@ from produccion import Produccion
 from tablaSintactica import TablaSintactica
 from nodo import Nodo
 from error_log import Log
+from translator import Translator
 
 def opera1(pivote, literales):
     # adicionar cada literal al nodo pivote
@@ -51,6 +52,7 @@ class Gramatica:
     analizador_lexico = None
 
     log = Log().get_instance() # Log de errores y warnings
+    translator = None
 
     def __init__(self):
         #terminales = ['+', '-', '*', '/', '(', ')', 'num', 'id', '$']
@@ -59,6 +61,7 @@ class Gramatica:
         self.tablaSintactica = None
         self.terminales.add('$') # Fin de cadena
         self.analizador_lexico = AnalizadorLexico()
+        self.translator = Translator()
 
     # getIzquierdaFromDerecha:
     # encontrar generador de la izquierda a partir de toda
@@ -354,6 +357,8 @@ class Gramatica:
         #print (self.tokenize_array(queue))
         #print ([prod.right for prod in self.producciones])
 
+        real_values = [str(token.palabra) for token in lexic_tokens]
+
         queue = lexic_tokens
         stack = list()
 
@@ -429,6 +434,10 @@ class Gramatica:
             for columna in fila:
                 print(columna.ljust(30), end = ' ')
             print()
+        
+        if len(stack) == 0 and len(queue) == 0:
+            self.translator.write_to_file(real_values)
+            print('Written values')
 
         return len(stack) == 0 and len(queue) == 0
 

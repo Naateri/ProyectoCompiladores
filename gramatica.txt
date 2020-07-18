@@ -1,5 +1,11 @@
-EXPR := int id = OPERATION | float id = OPERATION
-EXPR := print ( F )
+EXPR := D_TYPE id = OPERATION
+EXPR := print F
+EXPR := INP D_TYPE id = input
+EXPR := if F REL_OP F begin
+EXPR := else begin
+EXPR := end
+EXPR := LAMBDA D_TYPE id = D_TYPE id : OPERATION
+EXPR := CALL D_TYPE id = id F
 OPERATION := T Ep
 Ep := + T Ep 
 Ep := - T Ep

@@ -63,9 +63,12 @@ class AnalizadorLexico:
     reserved_if = ['if', 'else']
     reserved_delim = ['begin', 'end']
     relational_operators = ['==', '!=', '<=', '>=', '<', '>']
+    input_output = ['print', 'input']
     token_comentario = '&'
     lambda_func = 'LAMBDA'
     call_func = 'CALL'
+    inp_func = 'INP'
+    start_main = 'MAIN'
     symbol_table = None
     balance_beginend = ''
 
@@ -127,10 +130,16 @@ class AnalizadorLexico:
                 self.balance_beginend += 'b'
             else:
                 self.balance_beginend += 'e'
+        elif token in self.input_output:
+            token_obj = Token(token, start_idx, 'IO', token) # IO => I/O
         elif token == self.lambda_func:
             token_obj = Token(token, start_idx, 'LAMBDA', token)
         elif token == self.call_func:
             token_obj = Token(token, start_idx, 'CALL', token)
+        elif token == self.inp_func:
+            token_obj = Token(token, start_idx, 'INP', token)
+        elif token == self.start_main:
+            token_obj = Token(token, start_idx, 'M', token)
         else:
             token_obj = Token(token, start_idx, "V", 'id') #Creacion del token
         return token_obj,idx
@@ -172,8 +181,11 @@ class AnalizadorLexico:
                 if (token.valor_gramatica not in self.datatypes and 
                     token.valor_gramatica not in self.reserved_if and 
                     token.valor_gramatica not in self.reserved_delim
+                    and token.valor_gramatica not in self.input_output
                     and token.valor_gramatica != self.lambda_func
-                    and token.valor_gramatica != self.call_func):
+                    and token.valor_gramatica != self.call_func
+                    and token.valor_gramatica != self.inp_func
+                    and token.valor_gramatica != self.start_main):
                     if 'LAMBDA' in tokens_symbol: # Funcion lambda
                         #print('lambda', tokens_symbol)
                         #print(tokens_palabra)
@@ -258,13 +270,13 @@ class AnalizadorLexico:
                 opening_bracket = stack.pop()
                 position = opening_brackets.index(opening_bracket)
                 if character != closing_brackets[position]:
-                    print("NO")
+                    #print("NO")
                     return False
 
         if len(stack) > 0:
-            print("NO")
+            #print("NO")
             return False
         else:
-            print("SI")
+            #print("SI")
             return True
 
