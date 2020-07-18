@@ -19,8 +19,7 @@ if prueba1 <= 3 begin & Ejemplo if
     int result = prueba5 + prueba4 & Segunda linea if
     print result & Output en if
 end & Fin del if
-
 else begin & Ejemplo else
-    int result = 4 & Cuerpo del else
+    float result = 4.2 & Cuerpo del else
     print result & Cuerpo del else
 end & Fin del else

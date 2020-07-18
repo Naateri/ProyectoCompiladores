@@ -88,7 +88,7 @@ class AnalizadorLexico:
     def reconocePosibleNumero(self, linea, idx):
         start_idx = idx #Para constructor de Token
         token = ""
-        while idx < len(linea) and linea[idx].isdigit(): #mientras sea digito
+        while idx < len(linea) and (linea[idx].isdigit() or linea[idx] == '.'): #mientras sea digito
             token += linea[idx] #Agregar al token
             idx += 1
 

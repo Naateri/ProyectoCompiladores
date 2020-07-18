@@ -82,12 +82,13 @@ F := id | value
     linea = 1
     valid = True
     for cadena in cadenas:
+        linea += 1
         validate = gramatica.validate_str(cadena.replace('\t', '').strip('\n'), linea)
         if not validate:
             print('Error de compilación')
             valid = False
             break
-        linea += 1
+        
 
     if valid:
         lexical_analyzer = gramatica.analizador_lexico
