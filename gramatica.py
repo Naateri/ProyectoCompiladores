@@ -53,8 +53,9 @@ class Gramatica:
 
     log = Log().get_instance() # Log de errores y warnings
     translator = None
+    main_enabled = False
 
-    def __init__(self):
+    def __init__(self, show_tree):
         #terminales = ['+', '-', '*', '/', '(', ')', 'num', 'id', '$']
         #noterminales = ['E', 'Ep', 'T', 'Tp', 'F']
         self.nodoInicial = None
@@ -62,6 +63,7 @@ class Gramatica:
         self.terminales.add('$') # Fin de cadena
         self.analizador_lexico = AnalizadorLexico()
         self.translator = Translator()
+        self.show_tree = show_tree
 
     # getIzquierdaFromDerecha:
     # encontrar generador de la izquierda a partir de toda
@@ -334,7 +336,7 @@ class Gramatica:
 
         queue = [token.valor_gramatica for token in lexic_tokens]
 
-        print(queue)
+        #print(queue)
 
         # Buscando errores analizador léxico
         for value in queue:
@@ -344,6 +346,10 @@ class Gramatica:
                 self.log.addError('E1', linea, cadena)
             elif value == 'NoId': # Error variable no declarada
                 self.log.addError('E4', linea, cadena)
+            elif value == 'LAMBDA' and self.main_enabled:
+                self.log.addError('E3', linea, cadena)
+            elif value == 'MAIN':
+                self.main_enabled = True
 
         if (len(self.log.get_instance().errores) > 0 or
             len(self.log.get_instance().warnings) > 0):
@@ -430,14 +436,15 @@ class Gramatica:
                     return False
             tabla_arbol.append(fila_tabla)
         
-        for fila in tabla_arbol:
-            for columna in fila:
-                print(columna.ljust(30), end = ' ')
-            print()
+        if self.show_tree:
+            for fila in tabla_arbol:
+                for columna in fila:
+                    print(columna.ljust(30), end = ' ')
+                print()
         
         if len(stack) == 0 and len(queue) == 0:
             self.translator.write_to_file(real_values)
-            print('Written values')
+            #print('Written values')
 
         return len(stack) == 0 and len(queue) == 0
 

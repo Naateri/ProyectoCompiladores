@@ -1,0 +1,26 @@
+LAMBDA int potencia2 = int num : num * num  & Declaración función
+LAMBDA int duplicar = int num : num + num & Declaración función 2
+
+MAIN
+
+CALL int prueba_ = potencia2 4 & Llamada a función
+print prueba_ & ejemplo de Output
+
+CALL int _prueba = duplicar 64 & Llamada a otra función
+print _prueba & Otro output
+
+int _prueba2 = 12 + 23%14 & Declaración tipo entero
+int prueba3 = 1 + _prueba2 & Declaración usando otra variable
+int prueba1 = 4 & Declaración variable prueba1
+
+if prueba1 <= 3 begin & Ejemplo if
+    int prueba4 = 3+ prueba1 & Contenido del if
+    INP int prueba5 = input & ejemplo de input
+    int result = prueba5 + prueba4 & Segunda linea if
+    print result & Output en if
+end & Fin del if
+
+else begin & Ejemplo else
+    int result = 4 & Cuerpo del else
+    print result & Cuerpo del else
+end & Fin del else

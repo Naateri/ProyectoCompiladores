@@ -100,7 +100,7 @@ class AnalizadorLexico:
             num = False
 
         if num: # Es numero
-            token_obj = Token(int(token), start_idx, "E", 'value') #Creacion del token 
+            token_obj = Token(token, start_idx, "E", 'value') #Creacion del token 
         else:
             token_obj = Token(token, start_idx, 'Er', 'NoNum') # NoNum = error léxico
         return token_obj,idx
@@ -178,6 +178,11 @@ class AnalizadorLexico:
                 tokens_symbol = [token.valor_gramatica for token in tokens]
                 tokens_palabra = [token.palabra for token in tokens]
 
+                if token.valor_gramatica == 'input':
+                    cur_sym = Symbol('E', -1, tokens_palabra[-2])
+                    if not self.symbol_table.check_by_name(tokens_palabra[-2]):
+                        self.symbol_table.add_symbol(cur_sym)
+
                 if (token.valor_gramatica not in self.datatypes and 
                     token.valor_gramatica not in self.reserved_if and 
                     token.valor_gramatica not in self.reserved_delim
@@ -203,7 +208,7 @@ class AnalizadorLexico:
                         
                     elif '=' in tokens_symbol or 'if' in tokens_symbol:
                         # Buscar si ya fue declarada
-                        print(self.symbol_table)
+                        #print(self.symbol_table)
                         if not self.symbol_table.check_by_name(token.palabra):
                             # No fue declarada pero esta siendo usada, reportarlo
                             token.valor_gramatica = 'NoId'

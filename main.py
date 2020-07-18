@@ -1,9 +1,31 @@
 from gramatica import Gramatica
 import os
+import sys, getopt
 
-def main():
+def main(argv):
 
-    gramatica = Gramatica()
+    inputfile = ''
+    show_tree = True
+    try:
+        opts, args = getopt.getopt(argv, 'hi:o:', ['ifile='])
+    except getopt.GetoptError:
+        print('main.py -i <inputfile> -o 0/1 (0=NOshowtree, 1=showtree)')
+        sys.exit(2)
+    
+    for opt, arg in opts:
+        if opt == '-h':
+            print('main.py -i <inputfile> -o 0/1 (0=NOshowtree, 1=showtree)')
+            sys.exit()
+        elif opt in ('-i', '--ifile'):
+            inputfile = arg
+        elif opt == '-o':
+            if str(arg) == '1':
+                show_tree = True
+            else:
+                show_tree = False
+
+
+    gramatica = Gramatica(show_tree)
     #gramatica2 = Gramatica()
     #gramatica.cargar("Ep := prueba")
     #DECL := NUMTYPE id = OPERATION
@@ -50,29 +72,17 @@ F := id | value
     #gramatica.imprimirTabla()
     #print(gramatica.tablaSintactica)'''
 
-    texto = """LAMBDA int potencia2 = int num : num * num  & Declaración función
-MAIN
-CALL int prueba_ = potencia2 4 & Llamada a función
-print prueba_ & ejemplo de Output
-int _prueba2 = 12 + 23%14 & Declaración tipo entero
-int prueba3 = _prueba2 + 1 & Declaración usando otra variable
-float hola = 2*3/5 & Declaración tipo flotante, multiplicación con división
-int prueba1 = 2 & Declaración variable prueba1
-if prueba1 <= 3 begin & Ejemplo if
-int prueba4 = 3+ prueba1 & Contenido del if
-INP int prueba5 = input & ejemplo de input
-int result = prueba1 + prueba4 & Segunda linea if
-print result & Output en if
-end & Fin del if
-else begin & Ejemplo else
-int result = 4 & Cuerpo del else
-print result & Cuerpo del else
-end & Fin del else"""
-    cadenas = texto.split('\n')
+    f = open(inputfile, 'r')
+
+    #cadenas = texto.split('\n')
+    cadenas = []
+    for x in f:
+        if len(x) >= 2:
+            cadenas.append(x)
     linea = 1
     valid = True
     for cadena in cadenas:
-        validate = gramatica.validate_str(cadena, linea)
+        validate = gramatica.validate_str(cadena.replace('\t', '').strip('\n'), linea)
         if not validate:
             print('Error de compilación')
             valid = False
@@ -85,15 +95,19 @@ end & Fin del else"""
         if not lexical_analyzer.balanced_text(cur_balance):
             gramatica.log.addError('E2', 0, 'Revisar todo')
             print(gramatica.log)
-        gramatica.translator.write_eof()
+        else:
+            gramatica.translator.write_eof()
 
-        print('Program execution')
-        os.system('g++ result.cpp -o results')
-        os.system('./results')
+            print('Program execution')
+            os.system('g++ result.cpp -o results')
+            os.system('./results')
 
-        print('Deleting files')
+    print('Deleting files')
+    try:
         os.remove('result.cpp')
         os.remove('results')
+    except:
+        pass
 
 
     #gramatica.validate_str('float hola = 2+3 & Declaración tipo flotante, suma', 0)
@@ -103,4 +117,7 @@ end & Fin del else"""
     
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) <= 1:
+        print('main.py -i <inputfile> -o 0/1 (0=NOshowtree, 1=showtree)')
+        sys.exit()        
+    main(sys.argv[1:])

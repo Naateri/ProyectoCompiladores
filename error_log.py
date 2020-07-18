@@ -3,7 +3,7 @@ class DiccionarioError:
 
     def __init__(self):
         self.codigos = {'E0': 'InvalidOperator', 'E1': 'IncorrectNumber', 
-        'E2': 'UnmatchedBeginAndEnd', 'E3': 'NoMatchingIf',
+        'E2': 'UnmatchedBeginAndEnd', 'E3': 'LambdaAfterMain',
         'E4': 'UndeclaredVariableOrFunc'}
 
 class Log:
